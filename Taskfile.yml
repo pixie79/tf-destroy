@@ -1,0 +1,18 @@
+version: 3
+
+tasks:
+  init:
+    cmds:
+      - terraform init -backend-config="key=${KEY}.tfstate"
+        -backend-config="bucket=${BUCKET}"
+        -backend-config="region=${AWS_REGION}"
+        -backend-config="encrypt=true"
+        -backend-config="dynamodb_table=${DYNAMODB}"
+
+  destroy:
+    cmds:
+      - terraform destroy -input=false
+
+  clean:
+    cmds:
+      - rm -rf .terraform .terraform.lock.hcl

@@ -4,28 +4,23 @@ This is a little repo to allow users to quickly destroy tf deployed code (withou
 
 ## Setup
 
-You AWS profile needs to be setup in ~/.aws/credentials after which you need to export the following two variables:
+You need some Admin IAM credentials either via an active SSO profile or export IAM creds
 
-AWS_PROFILE=<AWS_PROFILE_NAME>
-AWS_REGION=<AWS_REGION>
+export AWS_REGION=<AWS_REGION>            # AWS Region for state file and lock table
+export DYNAMODB="terraform-state-locking" # Dynamodb state table
+export KEY="enablement-data-fargate"      # Dynamodb lock key name
+export BUCKET="969894956954-state"        # S3 tfstate bucket 
 
 
-## Config
-
-You can create a backend config file to point to you tfstate file using the following command:
-
-```shell
-make backend ENV=<ENVIRONMENT_NAME> KEY=<KEY_NAME> BUCKET=<AWS_STATE_BUCKET> DYNAMODB=<DYNAMODB_TABLE>
-```
-
-DYNAMODB is optional the default values are as follows:
-DYNAMODB = terraform-state-locking
-
+This script needs a current Terraform binary and Task binary in path these can be obtained here:
+* https://taskfile.dev/installation/
+* https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 
 ## Destroy
 
 Destroy runs a terraform init followed by a terrafrom destroy then a clean up setup to remove local tf cache.
 
 ```shell
-make destroy ENV=<ENVIRONMENT_NAME>
+task init
+task destroy
 ```
