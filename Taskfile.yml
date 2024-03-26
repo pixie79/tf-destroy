@@ -1,8 +1,17 @@
 version: 3
 
+dotenv: [".env", "{{.ENV}}/.env.", "{{.HOME}}/.env"]
+
 tasks:
   init:
+    preconditions:
+      - test {{.AWS_REGION}}
+      - test {{.BUCKET}}
+      - test {{.KEY}}
+      - test {{.DYNAMODB}}
     cmds:
+      - task: clean
+      - echo "about to destroy ${KEY}"
       - terraform init -backend-config="key=${KEY}.tfstate"
         -backend-config="bucket=${BUCKET}"
         -backend-config="region=${AWS_REGION}"
@@ -11,8 +20,14 @@ tasks:
 
   destroy:
     cmds:
+      - task: init
       - terraform destroy -input=false
 
   clean:
+    internal: true
     cmds:
       - rm -rf .terraform .terraform.lock.hcl
+
+  unlock:
+    cmds:
+      - aws dynamodb delete-item --table="${DYNAMODB}" --key='{"LockID":{"S":"${BUCKET}/${KEY}.tfstate"}}'
